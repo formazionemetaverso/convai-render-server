@@ -1,0 +1,23 @@
+{
+  "name": "convai-render-server",
+  "version": "1.0.0",
+  "description": "Server per collegare Convai a un ambiente esterno",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "convai",
+    "api"
+  ]
+}
