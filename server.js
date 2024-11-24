@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
+// Usa la porta fornita da Render tramite l'ambiente
 const PORT = process.env.PORT || 3000;
 
 app.post('/spatial-convai', async (req, res) => {
@@ -17,20 +18,19 @@ app.post('/spatial-convai', async (req, res) => {
 
     try {
         console.log(`Input ricevuto: ${userInput}`);
-        const convaiResponse = await axios.post('https://api.convai.com/character/getResponse', null, {
+        const convaiResponse = await axios.post('https://api.convai.com/character/getResponse', {
+            charID: '1e9fbd10-a2d1-11ef-a8fc-42010a7be016',
+            userText: userInput,
+            sessionID: '-1',
+            voiceResponse: false
+        }, {
             headers: {
                 'CONVAI-API-KEY': process.env.CONVAI_API_KEY
-            },
-            params: {
-                userText: userInput,
-                charID: '1e9fbd10-a2d1-11ef-a8fc-42010a7be016', // Sostituito con il tuo Character ID
-                sessionID: '-1',
-                voiceResponse: 'False' // Impostato su False per evitare risposte vocali
             }
         });
 
         console.log("Risposta da Convai:", convaiResponse.data);
-        res.json(convaiResponse.data);
+        res.json({ response: convaiResponse.data });
     } catch (error) {
         console.error('Errore durante la comunicazione con Convai:', error.message);
         res.status(500).json({ error: 'Errore nella comunicazione con Convai' });
@@ -45,12 +45,4 @@ app.listen(PORT, () => {
     console.log(`Server in esecuzione su porta ${PORT}`);
 });
 
-
-app.get('/', (req, res) => {
-    res.send('Il server è in esecuzione correttamente!');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server in esecuzione su porta ${PORT}`);
-});
 
