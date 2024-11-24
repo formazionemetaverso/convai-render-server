@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-// Usa la porta fornita da Render tramite l'ambiente
+// Usa la porta fornita da Render o default a 3000
 const PORT = process.env.PORT || 3000;
 
 app.post('/spatial-convai', async (req, res) => {
@@ -19,10 +19,10 @@ app.post('/spatial-convai', async (req, res) => {
     try {
         console.log(`Input ricevuto: ${userInput}`);
         const convaiResponse = await axios.post('https://api.convai.com/character/getResponse', {
-            charID: '1e9fbd10-a2d1-11ef-a8fc-42010a7be016',
             userText: userInput,
+            charID: '1e9fbd10-a2d1-11ef-a8fc-42010a7be016',
             sessionID: '-1',
-            voiceResponse: false
+            voiceResponse: 'True',
         }, {
             headers: {
                 'CONVAI-API-KEY': process.env.CONVAI_API_KEY
