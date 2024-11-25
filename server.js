@@ -1,14 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
+const FormData = require('form-data');
 
 const app = express();
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
-
-// Variabile per salvare il sessionID corrente
-let currentSessionID = "-1";
 
 app.post('/spatial-convai', async (req, res) => {
     const userInput = req.body.input;
@@ -20,39 +18,29 @@ app.post('/spatial-convai', async (req, res) => {
 
     try {
         console.log(`Input ricevuto: ${userInput}`);
-        const convaiResponse = await axios.post('https://api.convai.com/character/getResponse', {
-            userText: userInput,
-            charID: '1e9fbd10-a2d1-11ef-a8fc-42010a7be016',
-            sessionID: currentSessionID,
-            voiceResponse: "False"
-        }, {
+
+        // Creazione di form-data per la richiesta
+        const formData = new FormData();
+        formData.append('charID', '1e9fbd10-a2d1-11ef-a8fc-42010a7be016'); // Character ID
+        formData.append('sessionID', '-1');
+        formData.append('userText', userInput);
+        formData.append('voiceResponse', 'false');
+
+        const convaiResponse = await axios.post('https://api.convai.com/character/getResponse/', formData, {
             headers: {
-                'CONVAI-API-KEY': process.env.CONVAI_API_KEY
+                ...formData.getHeaders(),
+                'CONVAI-API-KEY': '28878bea5c7697dde29c8bd7b8099ca4' // API Key
             }
         });
 
-        // Aggiorna il sessionID per richieste future
-        if (convaiResponse.data.sessionID) {
-            currentSessionID = convaiResponse.data.sessionID;
-        }
-
         console.log("Risposta da Convai:", convaiResponse.data);
-        res.json({ response: convaiResponse.data });
+        res.json(convaiResponse.data);
     } catch (error) {
         console.error('Errore durante la comunicazione con Convai:', error.message);
-
-        // Log dettagliati per debug
-        if (error.response) {
-            console.error('Dati di risposta:', error.response.data);
-            console.error('Stato HTTP:', error.response.status);
-            console.error('Intestazioni:', error.response.headers);
-        } else if (error.request) {
-            console.error('Nessuna risposta ricevuta:', error.request);
-        } else {
-            console.error('Errore durante la configurazione della richiesta:', error.message);
-        }
-
-        res.status(500).json({ error: 'Errore nella comunicazione con Convai' });
+        res.status(500).json({
+            error: 'Errore nella comunicazione con Convai',
+            details: error.response ? error.response.data : error.message
+        });
     }
 });
 
@@ -63,6 +51,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server in esecuzione su porta ${PORT}`);
 });
+
 
 
 
